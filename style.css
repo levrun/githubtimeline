@@ -1,0 +1,59 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f6f8fa;
+    margin: 0;
+    padding: 0;
+}
+h1 {
+    text-align: center;
+    margin-top: 30px;
+    color: #24292f;
+}
+#timeline {
+    max-width: 600px;
+    margin: 40px auto;
+    position: relative;
+    padding-left: 30px;
+}
+.timeline-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 30px;
+    position: relative;
+}
+.timeline-dot {
+    width: 14px;
+    height: 14px;
+    background: #2ea44f;
+    border-radius: 50%;
+    position: absolute;
+    left: -7px;
+    top: 5px;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #2ea44f;
+}
+.timeline-content {
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(27,31,35,0.04);
+    padding: 12px 18px;
+    margin-left: 20px;
+    min-width: 0;
+    flex: 1;
+}
+.commit-sha {
+    font-family: monospace;
+    color: #6a737d;
+    font-size: 0.95em;
+    margin-right: 10px;
+}
+.commit-message {
+    font-weight: bold;
+    color: #24292f;
+}
+.commit-meta {
+    display: block;
+    color: #586069;
+    font-size: 0.9em;
+    margin-top: 4px;
+}
