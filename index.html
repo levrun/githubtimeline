@@ -7,32 +7,67 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>GitHub Commits Timeline</h1>
+    <h1>GitHub Monthly Commits Timeline</h1>
     <div id="timeline">
-        <!-- Timeline items will be injected here -->
+        <div>Loading monthly commit data...</div>
     </div>
     <script>
-        // Placeholder data
-        const commits = [
-            { sha: 'a1b2c3d', message: 'Initial commit', author: 'levrun', date: '2025-09-10' },
-            { sha: 'd4e5f6g', message: 'Add README', author: 'levrun', date: '2025-09-11' },
-            { sha: 'h7i8j9k', message: 'Create timeline page', author: 'levrun', date: '2025-09-12' }
-        ];
+    // Fetch all commits from the GitHub API and group by month
+    const owner = 'levrun';
+    const repo = 'githubtimeline';
+    const timeline = document.getElementById('timeline');
 
-        const timeline = document.getElementById('timeline');
-        commits.forEach(commit => {
-            const item = document.createElement('div');
-            item.className = 'timeline-item';
-            item.innerHTML = `
-                <div class="timeline-dot"></div>
-                <div class="timeline-content">
-                    <span class="commit-sha">${commit.sha}</span>
-                    <span class="commit-message">${commit.message}</span>
-                    <span class="commit-meta">by ${commit.author} on ${commit.date}</span>
-                </div>
-            `;
-            timeline.appendChild(item);
+    async function fetchAllCommits(page = 1, per_page = 100, allCommits = []) {
+        const url = `https://api.github.com/repos/${owner}/${repo}/commits?per_page=${per_page}&page=${page}`;
+        const res = await fetch(url);
+        if (!res.ok) return allCommits;
+        const commits = await res.json();
+        if (commits.length === 0) return allCommits;
+        allCommits = allCommits.concat(commits);
+        if (commits.length < per_page) return allCommits;
+        return fetchAllCommits(page + 1, per_page, allCommits);
+    }
+
+    function groupCommitsByMonth(commits) {
+        const monthly = {};
+        commits.forEach(c => {
+            const date = new Date(c.commit.author.date);
+            const key = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2, '0')}`;
+            if (!monthly[key]) monthly[key] = 0;
+            monthly[key]++;
         });
+        // Convert to sorted array
+        return Object.entries(monthly).sort((a, b) => a[0].localeCompare(b[0]));
+    }
+
+    async function showMonthlyTimeline() {
+        timeline.innerHTML = '<div>Loading monthly commit data...</div>';
+        try {
+            const commits = await fetchAllCommits();
+            const monthly = groupCommitsByMonth(commits);
+            timeline.innerHTML = '';
+            if (monthly.length === 0) {
+                timeline.innerHTML = '<div>No commits found.</div>';
+                return;
+            }
+            monthly.forEach(([month, count]) => {
+                const item = document.createElement('div');
+                item.className = 'timeline-item';
+                item.innerHTML = `
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <span class="commit-message">${month}</span>
+                        <span class="commit-meta">${count} commit${count !== 1 ? 's' : ''}</span>
+                    </div>
+                `;
+                timeline.appendChild(item);
+            });
+        } catch (e) {
+            timeline.innerHTML = '<div>Error loading commit data.</div>';
+        }
+    }
+
+    showMonthlyTimeline();
     </script>
 </body>
 </html>
